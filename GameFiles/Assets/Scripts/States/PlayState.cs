@@ -35,7 +35,7 @@ public class PlayState : State
     private int currentWave;
     private bool canReadNextWave;
     public Vector3[] waypoints;
-    private List<Enemy> enemiesOnScreen;
+    public List<Enemy> enemiesOnScreen;
     private Tower towerUpgrading = null;
 
     public override void InitializeState()
@@ -91,7 +91,7 @@ public class PlayState : State
                 readNextWave();
             foreach (Wave w in waves.ToList())
                 w.Update(Time.deltaTime);
-            if (currentWave >= currentRoundInfo.Length && enemiesOnScreen.Count == 0)
+            if (currentWave >= currentRoundInfo.Length && enemiesOnScreen.Count == 0 && waves.Count == 0)
             {
                 midRound = false;
                 Debug.Log("Round Finished");
@@ -134,11 +134,12 @@ public class PlayState : State
     /// </summary>
     private void StartRound()
     {
-        Debug.Log("Starting Round " + round);
         midRound = true;
         currentRoundInfo = Rounds.roundInfo[round].Split(" ");
         round++;
+        Debug.Log("Starting Round " + round);
         currentWave = 0;
+        waitTimer = 0;
         canReadNextWave = true;
     }
 
@@ -167,7 +168,6 @@ public class PlayState : State
             index = wave.IndexOf("/");
             int spacing = Int32.Parse(wave.Substring(0, index));
             wave = wave.Substring(index+1, wave.Length - (index+1));
-
 
             waves.Add(new Wave(id, num, spacing, wave));
         }
@@ -259,6 +259,7 @@ public class PlayState : State
             this.spacing = (float) spacing/1000f;
             this.modifiers = modifiers;
             
+            timer = 0;
             numSpawned = 0;
         }
 
@@ -285,7 +286,7 @@ public class PlayState : State
         private void CreateEnemy()
         {
             Enemy tempEnemy = Instantiate(GameAssets.instance.enemy, GameManager.instance.playState.waypoints[0], new Quaternion()).GetComponent<Enemy>();
-            tempEnemy.Initialize(Rounds.enemies[id].moveSpeed, Rounds.enemies[id].dmg, modifiers, Rounds.enemies[id].health, id, Rounds.enemies[id].moneyWorth, Rounds.enemies[id].spawn);
+            tempEnemy.Initialize(Rounds.enemies[id].moveSpeed, Rounds.enemies[id].dmg, modifiers, Rounds.enemies[id].health, id, Rounds.enemies[id].moneyWorth, Rounds.enemies[id].spawn, Rounds.enemies[id].scales, Rounds.enemies[id].size);
             GameManager.instance.playState.enemiesOnScreen.Add(tempEnemy);
         }
     }

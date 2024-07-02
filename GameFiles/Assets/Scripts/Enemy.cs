@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
@@ -13,10 +14,13 @@ public class Enemy : MonoBehaviour
     protected int health = 1;
     protected int id;
     protected int moneyWorth;
-    protected int spawn;
+    protected int[] spawn;
+    protected bool scales;
+    protected bool bouncing;
+    protected string modifiers;
     public bool isCamo { get; protected set;}
 
-    public void Initialize(float moveSpeed, int dmg, string modifiers, int health, int id, int moneyWorth, int spawn)
+    public void Initialize(float moveSpeed, int dmg, string modifiers, int health, int id, int moneyWorth, int[] spawn, bool scales, float size)
     {
         this.health = health;
         this.id = id;
@@ -28,7 +32,10 @@ public class Enemy : MonoBehaviour
         waypointIndex++;
         this.moneyWorth = moneyWorth;
         GetComponent<SpriteRenderer>().sprite = GameAssets.instance.enemySprites[id];
+        gameObject.transform.localScale = new Vector3(size, size, size);
+        this.scales = scales;
 
+        this.modifiers = modifiers;
         // if given modifiers, reads it here and activates them
         foreach (char c in modifiers)
         {
@@ -36,6 +43,9 @@ public class Enemy : MonoBehaviour
             {
                 case 'C':
                     isCamo = true;
+                    break;
+                case 'B':
+                    bouncing = true;
                     break;
                 default:
                     break;
@@ -93,23 +103,37 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Triggers when at end of track. Destroys self and removes dmg health.
+    /// Triggers when bubble takes damage. Deletes bubble if health is less than 0. Scales down and gives money if scaleable bubble.
     /// </summary>
-    /// <param name="dmg">amount of health to remove from player</param>
-    public void DealDamage(int dmg)
+    /// <param name="dmg">amount of health to remove from enemy</param>
+    public void DealDamage(int dmgTaken)
     {
         Debug.Log("Damage Dealt to Bloon :O");
-        health -= dmg;
-        if (spawn > -1)
+        health -= dmgTaken;
+        if (scales && health > 0)
+        {
+            GameManager.instance.playState.Money += moneyWorth * dmgTaken;
+            dmg -= dmgTaken;
+            moveSpeed -= 1f * dmgTaken;
+            float size = gameObject.transform.localScale.x - (0.5f * dmgTaken);
+            id -= dmgTaken;
+            GetComponent<SpriteRenderer>().sprite = GameAssets.instance.enemySprites[id];
+            gameObject.transform.localScale = new Vector3(size, size, size);
+            SetVelocity();
+        }
+
+
+        if (spawn != null && spawn.Length > 0)
         {
             if (health < 0)
             {
-                dmg = health * -1;
+                dmgTaken = health * -1;
                 switchEnemy();
-                DealDamage(dmg);
+                DealDamage(dmgTaken);
             }
             else if (health == 0)
             {
+                GameManager.instance.playState.Money += moneyWorth;
                 switchEnemy();
             }
         }
@@ -117,6 +141,11 @@ public class Enemy : MonoBehaviour
         {
             if (health <= 0)
             {
+                if (scales)
+                    GameManager.instance.playState.Money += moneyWorth*(dmg+health);
+                else
+                    GameManager.instance.playState.Money += moneyWorth;
+
                 removeEnemy();
             }
         }
@@ -124,27 +153,37 @@ public class Enemy : MonoBehaviour
 
     protected void removeEnemy()
     {
-        GameManager.instance.playState.Money += moneyWorth;
         GameManager.instance.playState.RemoveEnemy(this);
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Summons enemy spawns when destroyed
+    /// </summary>
     protected void switchEnemy()
     {
-        id = spawn;
-        health = Rounds.enemies[id].health;
-        dmg = Rounds.enemies[id].dmg;
-        moveSpeed = Rounds.enemies[id].moveSpeed;
-        moneyWorth = Rounds.enemies[id].moneyWorth;
-        spawn = Rounds.enemies[id].spawn;
+        foreach (int i in spawn)
+        {
+            id = i;
+            Enemy tempEnemy = Instantiate(GameAssets.instance.enemy, GameManager.instance.playState.waypoints[0], new Quaternion()).GetComponent<Enemy>();
+            tempEnemy.Initialize(Rounds.enemies[id].moveSpeed, Rounds.enemies[id].dmg, modifiers, Rounds.enemies[id].health, id, Rounds.enemies[id].moneyWorth, Rounds.enemies[id].spawn, Rounds.enemies[id].scales, Rounds.enemies[id].size);
+            GameManager.instance.playState.enemiesOnScreen.Add(tempEnemy);
+            tempEnemy.wasInstantiated(waypointIndex, transform.position);
+        }
 
-        GetComponent<SpriteRenderer>().sprite = GameAssets.instance.enemySprites[id];
-
-        SetVelocity();
+        removeEnemy();
     }
 
     public float distanceToNextWaypoint()
     {
         return FindDistance(transform.position, GameManager.instance.playState.waypoints[waypointIndex]);
+    }
+
+    public void wasInstantiated(int waypoint, Vector3 pos)
+    {
+        Debug.Log("IS INSTANTIATED");
+        waypointIndex = waypoint;
+        transform.position = pos;
+        SetVelocity();
     }
 }

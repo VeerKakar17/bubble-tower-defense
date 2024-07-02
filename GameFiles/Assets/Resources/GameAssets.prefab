@@ -47,11 +47,18 @@ MonoBehaviour:
   bullet: {fileID: 1611788529663847905, guid: 4e163137dadba1346ab4453010fea7d3, type: 3}
   enemy: {fileID: 2617729432663619650, guid: c4107507f1a20e54eb7a352433671139, type: 3}
   enemySprites:
-  - {fileID: -1290109586, guid: d5037613ee4554c4c875266db0574095, type: 3}
-  - {fileID: -354776302, guid: d5037613ee4554c4c875266db0574095, type: 3}
-  - {fileID: 1202099857, guid: d5037613ee4554c4c875266db0574095, type: 3}
-  - {fileID: 251004534, guid: d5037613ee4554c4c875266db0574095, type: 3}
-  - {fileID: -124157316, guid: d5037613ee4554c4c875266db0574095, type: 3}
+  - {fileID: 242885013, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 1016264327, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 988555766, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: -213461700, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: -1600199705, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 1662110346, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 1791556801, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: -292338090, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: -1064111510, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: -749612791, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 1179924989, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
+  - {fileID: 1422360558, guid: e9c7bbdf661d0de4f8db13a29cf2eacd, type: 3}
   towers:
   - {fileID: 6596666946434617001, guid: 81f64fd5050d0224c9c889c0add0d8b5, type: 3}
   - {fileID: 6596666946434617001, guid: c5a02248382e41f4b9aeeab7bf099aac, type: 3}
